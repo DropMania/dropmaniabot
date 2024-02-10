@@ -31,6 +31,8 @@
 -   `{{random[x]}}` - a random number between 0 and x
 -   `{{random[x,y]}}` - a random number between x and y
 -   `{{random[a,b,c,...]}}` - a random element from the array
+-   `{{random.chatter}}` - a random chatter in the channel
+-   `{{random.7tv}}` - a random 7tv emote
 -   `{{spotify.title}}` - the current song playing on the streamer's spotify
 -   `{{spotify.artist}}` - the current artist playing on the streamer's spotify
 -   `{{spotify.album}}` - the current album playing on the streamer's spotify
@@ -38,6 +40,3 @@
 -   `{{uptime}}` - the current uptime of the stream
 -   `{{viewers}}` - the current viewer count of the stream
 -   `{{game}}` - the current game being played
--   `{{followers}}` - the current follower count of the stream
--   `{{subscribers}}` - the current subscriber count of the stream
--   `{{bits}}` - the current bits count of the stream
