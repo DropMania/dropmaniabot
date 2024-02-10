@@ -3,7 +3,6 @@ import Spotify from './modules/Spotify.js'
 import Chatters from './modules/Chatters.js'
 import Emotes from './modules/Emotes.js'
 import TwitchApi from './modules/TwitchApi.js'
-
 export {}
 
 declare global {
@@ -27,5 +26,10 @@ declare global {
 		chatters: Chatters
 		emotes: Emotes
 		twitchApi: TwitchApi
+	}
+	type CooldownTracker = {
+		[channel: string]: {
+			[command: string]: number
+		}
 	}
 }

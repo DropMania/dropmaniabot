@@ -1,6 +1,7 @@
 import Module from './_Module.js'
 import { db } from '../utils.js'
 import { parseCommand } from '../lib/customCommands.js'
+import commands from '../commands.js'
 import Spotify from './Spotify.js'
 import Chatters from './Chatters.js'
 import Emotes from './Emotes.js'
@@ -42,7 +43,7 @@ export default class CommandHandler extends Module {
 			.where('channel', '=', this.channelName)
 			.execute()
 	}
-	async isCommandDisabled(command: string) {
+	async getCommandConfig(command: string) {
 		const commandExists = await db
 			.selectFrom('commands')
 			.selectAll()
@@ -50,9 +51,24 @@ export default class CommandHandler extends Module {
 			.where('channel', '=', this.channelName)
 			.execute()
 		if (commandExists.length === 0) {
-			return false
+			return {
+				channel: this.channelName,
+				command,
+				cooldown: '3',
+				disabled: false,
+				id: 0,
+			}
 		}
-		return commandExists[0].disabled
+		return commandExists[0]
+	}
+
+	async setCooldown(command: string, cooldown: number) {
+		await db
+			.updateTable('commands')
+			.set('cooldown', cooldown)
+			.where('command', '=', command)
+			.where('channel', '=', this.channelName)
+			.execute()
 	}
 
 	async getCustomCommands() {
@@ -69,7 +85,8 @@ export default class CommandHandler extends Module {
 		const replyText = await parseCommand(reply_text, params, modules)
 		this.client.say(this.channelName, replyText)
 	}
-	async customCommandExists(name: string) {
+	async commandExists(name: string) {
+		if (name in commands) return true
 		const commandExists = await db
 			.selectFrom('custom_commands')
 			.selectAll()

@@ -8,6 +8,7 @@ export default {
 	addcom: cmd('commands.addcom', [Moderator]),
 	delcom: cmd('commands.delcom', [Moderator]),
 	editcom: cmd('commands.editcom', [Moderator]),
+	setcooldown: cmd('commands.cooldown', [Moderator]),
 
 	hello: cmd('misc.hello'),
 

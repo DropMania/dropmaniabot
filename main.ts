@@ -3,7 +3,7 @@ import client from './twitch.js'
 import commands from './commands.js'
 import { getModule, getGlobalModule, callGlobalModules, callChannelModules } from './modules.js'
 import CommandHandler from './modules/CommandHandler.js'
-
+const coolDownTracker: CooldownTracker = {}
 client.on('message', async (channel, user, message, self) => {
 	if (self) return
 	const commandParams = getCommandParams(channel, user, message)
@@ -14,8 +14,12 @@ client.on('message', async (channel, user, message, self) => {
 		const commandHandlerModule = getModule(channel, CommandHandler)
 		const customCommands = await commandHandlerModule.getCustomCommands()
 		const customCommand = customCommands.find((c) => c.name === command.toLowerCase())
-		const disabled = await commandHandlerModule.isCommandDisabled(command.toLowerCase())
-		if (disabled) return
+		const cmdConfig = await commandHandlerModule.getCommandConfig(command.toLowerCase())
+		if (cmdConfig.disabled) return
+		const lastUsed = coolDownTracker[channel]?.[command] || 0
+		if (lastUsed && Date.now() - lastUsed < Number(cmdConfig.cooldown) * 1000) return
+		coolDownTracker[channel] = coolDownTracker[channel] || {}
+		coolDownTracker[channel][command] = Date.now()
 		commandParams.message = args.join(' ')
 		if (customCommand) {
 			await commandHandlerModule.runCustomCommand(customCommand.reply_text, commandParams)

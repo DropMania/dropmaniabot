@@ -5,7 +5,7 @@
 ### Features
 
 -   [x] custom commands
--   [ ] custom commands with variables
+-   [x] custom commands with variables
 -   [ ] custom commands with scripting capabilities (maybe)
 -   [x] variety of cool built in commands B)
 -   [x] enable/disable commands
@@ -14,7 +14,7 @@
 -   [x] cheer thanker
 -   [x] permission system with middleware-type functions
 -   [x] modular features
--   [ ] command cooldowns
+-   [x] command cooldowns
 -   [ ] configurable settings for modules
 
 ... and more!
