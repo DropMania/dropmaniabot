@@ -4,7 +4,9 @@ export default class RedisSync {
 	private client: RedisClientType
 	private prefix: string
 	constructor(prefix: string) {
-		this.client = createClient()
+		this.client = createClient({
+			url: process.env.REDIS_URL,
+		})
 		this.client.on('error', (err) => {
 			console.error('Redis error:', err)
 		})

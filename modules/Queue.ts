@@ -1,28 +1,29 @@
 import { redisSync } from '../utils.js'
-import { RedisPrimitive } from '../lib/redisSync.js'
+import { RedisList, RedisPrimitive } from '../lib/redisSync.js'
 import Module from './_Module.js'
 export default class Queue extends Module {
-	queue: string[]
+	queue: RedisList<string[]>
 	public locked: RedisPrimitive<boolean>
 	constructor(channelName: string) {
 		super(channelName)
-		this.queue = []
+		this.queue = redisSync.createList(`queue:${channelName}:queue`, [])
 		this.locked = redisSync.createPrimitive(`queue:${channelName}:queuelocked`, true)
 	}
-	list() {
-		if (this.queue.length === 0) {
+	async list() {
+		const queue = await this.queue.get()
+		if (queue.length === 0) {
 			return 'Liste ist leer!'
 		}
-		return this.queue.join(', ')
+		return queue.join(', ')
 	}
-	add(user: string) {
+	async add(user: string) {
 		this.queue.push(user)
 	}
-	remove(user: string) {
-		this.queue = this.queue.filter((u) => u !== user)
+	async remove(user: string) {
+		this.queue.removeValue(user)
 	}
-	clear() {
-		this.queue = []
+	async clear() {
+		this.queue.clear()
 	}
 	async lock() {
 		await this.locked.set(true)
@@ -30,10 +31,14 @@ export default class Queue extends Module {
 	async unlock() {
 		await this.locked.set(false)
 	}
-	pick() {
+	async pick() {
 		return this.queue.shift()
 	}
-	randomPick() {
-		return this.queue.splice(Math.floor(Math.random() * this.queue.length), 1)[0]
+	async randomPick() {
+		const queue = await this.queue.get()
+		if (queue.length === 0) {
+			return null
+		}
+		return queue[Math.floor(Math.random() * queue.length)]
 	}
 }

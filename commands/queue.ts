@@ -1,8 +1,8 @@
 import Queue from '../modules/Queue.js'
 
-export function list({ reply, getChannelModule }: CommandParams) {
+export async function list({ reply, getChannelModule }: CommandParams) {
 	const queueModule = getChannelModule(Queue)
-	reply(queueModule.list())
+	reply(await queueModule.list())
 }
 
 export async function add({ reply, user, getChannelModule }: CommandParams) {
@@ -11,42 +11,42 @@ export async function add({ reply, user, getChannelModule }: CommandParams) {
 	if (locked) {
 		return reply('List ist locked!')
 	}
-	queueModule.add(user['display-name'])
+	await queueModule.add(user['display-name'])
 	reply(`@${user.username}, you have been added to the queue!`)
 }
 
-export function leave({ reply, user, getChannelModule }: CommandParams) {
+export async function leave({ reply, user, getChannelModule }: CommandParams) {
 	const queueModule = getChannelModule(Queue)
-	queueModule.remove(user['display-name'])
+	await queueModule.remove(user['display-name'])
 	reply(`@${user.username}, du hast die Liste verlassen!`)
 }
 
-export function clear({ reply, getChannelModule }: CommandParams) {
+export async function clear({ reply, getChannelModule }: CommandParams) {
 	const queueModule = getChannelModule(Queue)
-	queueModule.clear()
+	await queueModule.clear()
 	reply('Die Liste wurde geleert')
 }
 
-export function lock({ reply, getChannelModule }: CommandParams) {
+export async function lock({ reply, getChannelModule }: CommandParams) {
 	const queueModule = getChannelModule(Queue)
-	queueModule.lock()
+	await queueModule.lock()
 	reply('Die Liste ist jetzt locked!')
 }
 
-export function unlock({ reply, getChannelModule }: CommandParams) {
+export async function unlock({ reply, getChannelModule }: CommandParams) {
 	const queueModule = getChannelModule(Queue)
-	queueModule.unlock()
+	await queueModule.unlock()
 	reply('Die Liste ist jetzt unlocked!')
 }
 
-export function pick({ reply, getChannelModule }: CommandParams) {
+export async function pick({ reply, getChannelModule }: CommandParams) {
 	const queueModule = getChannelModule(Queue)
-	const user = queueModule.pick()
+	const user = await queueModule.pick()
 	reply(`@${user} ist dran!`)
 }
 
-export function randomPick({ reply, getChannelModule }: CommandParams) {
+export async function randomPick({ reply, getChannelModule }: CommandParams) {
 	const queueModule = getChannelModule(Queue)
-	const user = queueModule.randomPick()
+	const user = await queueModule.randomPick()
 	reply(`@${user} ist dran!`)
 }

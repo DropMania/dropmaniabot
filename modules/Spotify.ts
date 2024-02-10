@@ -7,8 +7,8 @@ export default class Spotify extends Module {
 	constructor(channelName: string) {
 		super(channelName)
 	}
-	async init(client: Client) {
-		await super.init(client)
+	async init(client: Client, getAccessToken: () => string) {
+		await super.init(client, getAccessToken)
 		const channel = channels.find((channel) => channel.channel === this.channelName)
 		if (!channel) return
 		this.SpotifyApi = new SpotifyWebApi({

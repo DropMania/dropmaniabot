@@ -8,8 +8,8 @@ export default class Emotes extends Module {
 	constructor(channelName: string) {
 		super(channelName)
 	}
-	async init(client: Client) {
-		super.init(client)
+	async init(client: Client, getAccessToken: () => string) {
+		super.init(client, getAccessToken)
 		let { data } = await axios.get(`https://7tv.io/v3/emote-sets/63224188e5c18a56c156b76b`)
 		this._7tvEmotes = data.emotes
 	}

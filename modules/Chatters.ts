@@ -14,8 +14,8 @@ export default class Chatters extends Module {
 		super(channelName)
 		this.chatters = redisSync.createHash(`chatters:${channelName}`, {})
 	}
-	async init(client: Client) {
-		super.init(client)
+	async init(client: Client, getAccessToken: () => string) {
+		super.init(client, getAccessToken)
 		setInterval(async () => {
 			const chatterStore = await this.chatters.get()
 			Object.entries(chatterStore).forEach(([chatter, data]) => {

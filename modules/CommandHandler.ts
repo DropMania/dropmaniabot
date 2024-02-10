@@ -1,6 +1,11 @@
 import Module from './_Module.js'
 import { db } from '../utils.js'
-export default class commandHandler extends Module {
+import { parseCommand } from '../lib/customCommands.js'
+import Spotify from './Spotify.js'
+import Chatters from './Chatters.js'
+import Emotes from './Emotes.js'
+import TwitchApi from './TwitchApi.js'
+export default class CommandHandler extends Module {
 	constructor(channelName: string) {
 		super(channelName)
 	}
@@ -54,8 +59,15 @@ export default class commandHandler extends Module {
 		return await db.selectFrom('custom_commands').selectAll().where('channel', '=', this.channelName).execute()
 	}
 
-	runCommand(reply_text: string) {
-		this.client.say(this.channelName, reply_text)
+	async runCustomCommand(reply_text: string, params: CommandParams) {
+		const modules: CustomCommandModules = {
+			spotify: this.getModule(Spotify),
+			chatters: this.getModule(Chatters),
+			emotes: this.getModule(Emotes),
+			twitchApi: this.getGlobalModule(TwitchApi),
+		}
+		const replyText = await parseCommand(reply_text, params, modules)
+		this.client.say(this.channelName, replyText)
 	}
 	async customCommandExists(name: string) {
 		const commandExists = await db

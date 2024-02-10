@@ -1,35 +1,9 @@
 import tmi from 'tmi.js'
-import axios from 'axios'
+import client from './twitch.js'
 import commands from './commands.js'
-import { callAllModules, getModule, getGlobalModule, callGlobalModules, callChannelModules } from './modules.js'
-import './utils.js'
-import channels from './channels.js'
+import { getModule, getGlobalModule, callGlobalModules, callChannelModules } from './modules.js'
 import CommandHandler from './modules/CommandHandler.js'
-const client = new tmi.Client({
-	options: { debug: true },
-	identity: {
-		username: 'dropmaniabot',
-		password: async () => {
-			const {
-				data: { access_token: token },
-			} = await axios.post('https://id.twitch.tv/oauth2/token', {
-				client_id: process.env.CLIENT_ID,
-				client_secret: process.env.CLIENT_SECRET,
-				grant_type: 'refresh_token',
-				refresh_token: process.env.REFRESH_TOKEN,
-			})
-			return `oauth:${token}`
-		},
-	},
-	connection: {
-		port: 80,
-	},
-	channels: channels.map((channel) => channel.channel),
-})
-client.connect().catch(console.error)
-client.on('connected', () => {
-	callAllModules('init', client)
-})
+
 client.on('message', async (channel, user, message, self) => {
 	if (self) return
 	const commandParams = getCommandParams(channel, user, message)
@@ -42,11 +16,11 @@ client.on('message', async (channel, user, message, self) => {
 		const customCommand = customCommands.find((c) => c.name === command.toLowerCase())
 		const disabled = await commandHandlerModule.isCommandDisabled(command.toLowerCase())
 		if (disabled) return
+		commandParams.message = args.join(' ')
 		if (customCommand) {
-			commandHandlerModule.runCommand(customCommand.reply_text)
+			await commandHandlerModule.runCustomCommand(customCommand.reply_text, commandParams)
 			return
 		}
-		commandParams.message = args.join(' ')
 		const commandFunction = commands[command.toLowerCase()]
 		if (!commandFunction) return
 		runCommand(commandFunction, commandParams)

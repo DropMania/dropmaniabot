@@ -72,5 +72,5 @@ export async function kisscam({ reply, getChannelModule }: CommandParams) {
 	const chatterStore = await chatterModule.getChatters()
 	let chatters = Object.values(chatterStore).sort(() => Math.random() - 0.5)
 	if (chatters.length === 0) return
-	reply(`Kisscam! ${chatters[0].displayName} und ${chatters[1].displayName}, ihr dürft euch küssen!`)
+	reply(`Kisscam! ${chatters[0].displayName} und ${chatters[1].displayName} , ihr dürft euch küssen!`)
 }

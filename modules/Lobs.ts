@@ -9,8 +9,8 @@ export default class Lobs extends Module {
 	constructor(channelName: string) {
 		super(channelName)
 	}
-	async init(client: Client) {
-		await super.init(client)
+	async init(client: Client, getAccessToken: () => string) {
+		await super.init(client, getAccessToken)
 		const emoteModule = this.getModule(Emotes)
 		const chatterModule = this.getModule(Chatters)
 		const query = db.selectFrom('lobs').select('text').where('channel', 'in', [this.channelName, 'ALL'])
