@@ -33,8 +33,8 @@ export async function tr({ reply, message }: CommandParams) {
 	reply(text)
 }
 
-export async function clipit({ reply, getChannelModule }: CommandParams) {
-	const twitchApiModule = getChannelModule(TwitchApi)
+export async function clipit({ reply, getModule }: CommandParams) {
+	const twitchApiModule = getModule(TwitchApi)
 	const clip = await twitchApiModule.createClip()
 	if (!clip) return reply('Clip konnte nicht erstellt werden!')
 	const interval = setInterval(async () => {

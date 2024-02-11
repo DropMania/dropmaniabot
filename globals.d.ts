@@ -12,7 +12,7 @@ declare global {
 		channel: string
 		user: ChatUserstate
 		message: string
-		getChannelModule: <T>(module: new (channelName: string) => T) => T
+		getModule: <T>(module: new (channelName: string) => T) => T
 		getGlobalModule: <T>(module: new (channelName: string) => T) => T
 	}
 	type Middleware = (params: CommandParams) => Promise<boolean | undefined>

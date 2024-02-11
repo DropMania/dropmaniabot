@@ -5,7 +5,7 @@ const moduleFiles = await fs.readdir('./modules')
 let moduleNames = moduleFiles.map((file) => file.split('.')[0])
 moduleNames = moduleNames.filter((name) => !['_Module'].includes(name))
 
-/* const moduleClasses = await Promise.all(
+const moduleClasses = await Promise.all(
 	moduleNames.map((name) => {
 		return import(`./modules/${name}.js`) as Promise<{
 			default: new (channelName: string) => Module
@@ -13,13 +13,8 @@ moduleNames = moduleNames.filter((name) => !['_Module'].includes(name))
 		}>
 	})
 ).catch(console.error)
-console.log(moduleClasses) */
-const moduleClasses = []
-for (const name of moduleNames) {
-	const module = await import(`./modules/${name}.js`).catch(console.error)
-	console.log(name)
-	moduleClasses.push(module)
-}
+console.log(moduleClasses)
+
 if (!moduleClasses) throw new Error('Error loading modules')
 const moduleTmp = channels.reduce(
 	(acc, channel) => {

@@ -2,7 +2,7 @@ import { redisSync } from '../utils.js'
 import { RedisList, RedisPrimitive } from '../lib/redisSync.js'
 import Module from './_Module.js'
 export default class Queue extends Module {
-	queue: RedisList<string[]>
+	private queue: RedisList<string[]>
 	public locked: RedisPrimitive<boolean>
 	constructor(channelName: string) {
 		super(channelName)

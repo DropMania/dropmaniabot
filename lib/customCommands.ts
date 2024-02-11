@@ -39,11 +39,11 @@ export async function parseCommand(text: string, params: CommandParams) {
 -   `{{game}}` - the current game being played
 -   `{{title}}` - the current title of the stream
  */
-async function getVariableValue(variable: string, { getChannelModule, user, message }: CommandParams) {
-	const spotifyModule = getChannelModule(Spotify)
-	const chattersModule = getChannelModule(Chatters)
-	const emotesModule = getChannelModule(Emotes)
-	const twitchApiModule = getChannelModule(TwitchApi)
+async function getVariableValue(variable: string, { getModule, user, message }: CommandParams) {
+	const spotifyModule = getModule(Spotify)
+	const chattersModule = getModule(Chatters)
+	const emotesModule = getModule(Emotes)
+	const twitchApiModule = getModule(TwitchApi)
 
 	const args = message.split(/\s+/g)
 	if (variable === 'from') {

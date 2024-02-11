@@ -1,21 +1,17 @@
 import Module from './_Module.js'
-import channels from '../channels.js'
 import SpotifyWebApi from 'spotify-web-api-node'
-import { Client } from 'tmi.js'
 export default class Spotify extends Module {
-	SpotifyApi: SpotifyWebApi
+	private SpotifyApi: SpotifyWebApi
 	constructor(channelName: string) {
 		super(channelName)
 	}
-	async init(client: Client, getAccessToken: () => string) {
-		await super.init(client, getAccessToken)
-		const channel = channels.find((channel) => channel.channel === this.channelName)
-		if (!channel) return
+	async init() {
+		await super.init()
 		this.SpotifyApi = new SpotifyWebApi({
 			clientId: process.env.SPOTIFY_CLIENT_ID,
 			clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 			redirectUri: process.env.SPOTIFY_REDIRECT,
-			refreshToken: channel.spotify_refresh,
+			refreshToken: this.channelConfig.spotify_refresh,
 		})
 		this.refreshToken()
 		setInterval(() => {

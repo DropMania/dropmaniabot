@@ -1,5 +1,4 @@
 import Module from './_Module.js'
-import { Client } from 'tmi.js'
 import { redisSync } from '../utils.js'
 import { RedisHash } from '../lib/redisSync.js'
 type ChatterStore = {
@@ -9,13 +8,13 @@ type ChatterStore = {
 	}
 }
 export default class Chatters extends Module {
-	chatters: RedisHash<ChatterStore>
+	private chatters: RedisHash<ChatterStore>
 	constructor(channelName: string) {
 		super(channelName)
 		this.chatters = redisSync.createHash(`chatters:${channelName}`, {})
 	}
-	async init(client: Client, getAccessToken: () => string) {
-		super.init(client, getAccessToken)
+	async init() {
+		super.init()
 		setInterval(async () => {
 			const chatterStore = await this.chatters.get()
 			Object.entries(chatterStore).forEach(([chatter, data]) => {

@@ -74,7 +74,7 @@ function getCommandParams(channel: string, user: tmi.ChatUserstate, message: str
 		user,
 		message,
 		reply,
-		getChannelModule,
+		getModule: getChannelModule,
 		getGlobalModule,
 	}
 	return commandParams

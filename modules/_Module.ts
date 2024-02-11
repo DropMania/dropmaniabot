@@ -1,15 +1,18 @@
 import { Client } from 'tmi.js'
+import channels from '../channels.js'
 export default class Module {
 	protected client: Client | null
 	protected channelName: string
-	protected getAccessToken: () => string
+	protected channelConfig: (typeof channels)[number]
 	private moduleApi: typeof import('../modules.js')
 	constructor(channelName: string) {
 		this.channelName = channelName
+		const channel = channels.find((channel) => channel.channel === this.channelName)
+		this.channelConfig = channel
 	}
-	async init(client: Client, getAccessToken: () => string) {
-		this.getAccessToken = getAccessToken
-		this.client = client
+	async init() {
+		const twitch = await import('../twitch.js')
+		this.client = twitch.default
 		this.moduleApi = await import(`../modules.js`)
 	}
 	getModule<T>(module: new (channelName: string) => T): T {

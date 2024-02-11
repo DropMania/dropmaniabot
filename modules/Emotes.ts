@@ -1,19 +1,16 @@
-import { Client } from 'tmi.js'
 import Module from './_Module.js'
 import axios from 'axios'
 import type { _7TVemote } from '../types/responses.js'
 import TwitchApi from './TwitchApi.js'
-import channels from '../channels.js'
 
 export default class Emotes extends Module {
-	_7tvEmotes: _7TVemote[]
+	private _7tvEmotes: _7TVemote[]
 	constructor(channelName: string) {
 		super(channelName)
 	}
-	async init(client: Client, getAccessToken: () => string) {
-		super.init(client, getAccessToken)
-		const channel = channels.find((channel) => channel.channel === this.channelName)
-		let { data } = await axios.get(`https://7tv.io/v3/emote-sets/${channel['7tv_emoteset']}`)
+	async init() {
+		super.init()
+		let { data } = await axios.get(`https://7tv.io/v3/emote-sets/${this.channelConfig['7tv_emoteset']}`)
 		this._7tvEmotes = data.emotes
 	}
 

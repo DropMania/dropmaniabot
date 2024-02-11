@@ -1,7 +1,7 @@
 import Spotify from '../modules/Spotify.js'
 
-export async function song({ reply, getChannelModule }: CommandParams) {
-	const spotifyModule = getChannelModule(Spotify)
+export async function song({ reply, getModule }: CommandParams) {
+	const spotifyModule = getModule(Spotify)
 	const song = await spotifyModule.currentlyPlaying()
 	if (song.body.item) {
 		reply(
@@ -15,17 +15,17 @@ export async function song({ reply, getChannelModule }: CommandParams) {
 	}
 }
 
-export async function play({ getChannelModule }: CommandParams) {
-	const spotifyModule = getChannelModule(Spotify)
+export async function play({ getModule }: CommandParams) {
+	const spotifyModule = getModule(Spotify)
 	spotifyModule.play()
 }
 
-export async function pause({ getChannelModule }: CommandParams) {
-	const spotifyModule = getChannelModule(Spotify)
+export async function pause({ getModule }: CommandParams) {
+	const spotifyModule = getModule(Spotify)
 	spotifyModule.pause()
 }
 
-export async function next({ getChannelModule }: CommandParams) {
-	const spotifyModule = getChannelModule(Spotify)
+export async function next({ getModule }: CommandParams) {
+	const spotifyModule = getModule(Spotify)
 	spotifyModule.next()
 }

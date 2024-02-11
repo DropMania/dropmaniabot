@@ -33,7 +33,7 @@ export function getAccessToken() {
 
 client.connect().catch(console.error)
 client.on('connected', () => {
-	callAllModules('init', client, getAccessToken)
+	callAllModules('init')
 })
 
 export default client

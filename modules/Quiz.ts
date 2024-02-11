@@ -3,7 +3,7 @@ import { tr } from '../utils.js'
 import axios from 'axios'
 import type { QuizResponse } from '../types/responses.js'
 export default class Quiz extends Module {
-	quizAnswer: string = ''
+	private quizAnswer: string = ''
 	constructor(channelName: string) {
 		super(channelName)
 	}
