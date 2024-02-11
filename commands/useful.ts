@@ -1,3 +1,4 @@
+import TwitchApi from '../modules/TwitchApi.js'
 import { sleep, tr as translate } from '../utils.js'
 
 export async function birthday({ reply, message, user }: CommandParams) {
@@ -30,4 +31,17 @@ export async function wecker({ reply, message }: CommandParams) {
 export async function tr({ reply, message }: CommandParams) {
 	let text = await translate(message, 'de')
 	reply(text)
+}
+
+export async function clipit({ reply, getChannelModule }: CommandParams) {
+	const twitchApiModule = getChannelModule(TwitchApi)
+	const clip = await twitchApiModule.createClip()
+	if (!clip) return reply('Clip konnte nicht erstellt werden!')
+	const interval = setInterval(async () => {
+		const clipData = await twitchApiModule.getClip(clip.id)
+		if (clipData) {
+			reply(`Clip erstellt: ${clipData.url}`)
+			clearInterval(interval)
+		}
+	}, 3000)
 }

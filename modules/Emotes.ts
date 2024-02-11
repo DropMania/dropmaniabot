@@ -2,6 +2,8 @@ import { Client } from 'tmi.js'
 import Module from './_Module.js'
 import axios from 'axios'
 import type { _7TVemote } from '../types/responses.js'
+import TwitchApi from './TwitchApi.js'
+import channels from '../channels.js'
 
 export default class Emotes extends Module {
 	_7tvEmotes: _7TVemote[]
@@ -10,7 +12,8 @@ export default class Emotes extends Module {
 	}
 	async init(client: Client, getAccessToken: () => string) {
 		super.init(client, getAccessToken)
-		let { data } = await axios.get(`https://7tv.io/v3/emote-sets/63224188e5c18a56c156b76b`)
+		const channel = channels.find((channel) => channel.channel === this.channelName)
+		let { data } = await axios.get(`https://7tv.io/v3/emote-sets/${channel['7tv_emoteset']}`)
 		this._7tvEmotes = data.emotes
 	}
 
@@ -22,5 +25,10 @@ export default class Emotes extends Module {
 	}
 	getRand7TvEmote() {
 		return this._7tvEmotes[Math.floor(Math.random() * this._7tvEmotes.length)].name
+	}
+	async getRandTwitchEmote() {
+		const twitchApiModule = this.getModule(TwitchApi)
+		const emotes = await twitchApiModule.getEmotes()
+		return emotes[Math.floor(Math.random() * emotes.length)]
 	}
 }

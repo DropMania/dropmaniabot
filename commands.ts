@@ -15,6 +15,7 @@ export default {
 	wecker: cmd('useful.wecker', [Moderator]),
 	birthday: cmd('useful.birthday'),
 	tr: cmd('useful.tr'),
+	clipit: cmd('useful.clipit', [Moderator]),
 
 	list: cmd('queue.list'),
 	join: cmd('queue.add'),

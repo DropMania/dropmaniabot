@@ -1,9 +1,14 @@
-export async function parseCommand(text: string, params: CommandParams, modules: CustomCommandModules) {
+import { Duration } from 'luxon'
+import Spotify from '../modules/Spotify.js'
+import Chatters from '../modules/Chatters.js'
+import Emotes from '../modules/Emotes.js'
+import TwitchApi from '../modules/TwitchApi.js'
+export async function parseCommand(text: string, params: CommandParams) {
 	const variables = text.match(/{{[{]?(.*?)[}]?}}/g)
 	if (!variables) return text
 	for (const variable of variables) {
 		const variableName = variable.replace(/[{}]/g, '')
-		const value = await getVariableValue(variableName, params, modules)
+		const value = await getVariableValue(variableName, params)
 		console.log(variable, value)
 		text = text.replace(variable, value)
 	}
@@ -23,6 +28,8 @@ export async function parseCommand(text: string, params: CommandParams, modules:
 -   `{{random[a,b,c,...]}}` - a random element from the array
 -   `{{random.chatter}}` - a random chatter in the channel
 -   `{{random.7tv}}` - a random 7tv emote
+-   `{{random.emote}}` - a random Twitch emote
+-   `{{random.clip}}` - a random clip url from the channel
 -   `{{spotify.title}}` - the current song playing on the streamer's spotify
 -   `{{spotify.artist}}` - the current artist playing on the streamer's spotify
 -   `{{spotify.album}}` - the current album playing on the streamer's spotify
@@ -30,29 +37,29 @@ export async function parseCommand(text: string, params: CommandParams, modules:
 -   `{{uptime}}` - the current uptime of the stream
 -   `{{viewers}}` - the current viewer count of the stream
 -   `{{game}}` - the current game being played
+-   `{{title}}` - the current title of the stream
  */
-async function getVariableValue(variable: string, params: CommandParams, modules: CustomCommandModules) {
-	const {
-		spotify: spotifyModule,
-		chatters: chattersModule,
-		emotes: emotesModule,
-		twitchApi: twitchApiModule,
-	} = modules
-	const args = params.message.split(/\s+/g)
+async function getVariableValue(variable: string, { getChannelModule, user, message }: CommandParams) {
+	const spotifyModule = getChannelModule(Spotify)
+	const chattersModule = getChannelModule(Chatters)
+	const emotesModule = getChannelModule(Emotes)
+	const twitchApiModule = getChannelModule(TwitchApi)
+
+	const args = message.split(/\s+/g)
 	if (variable === 'from') {
-		return params.user['display-name']
+		return user['display-name']
 	}
 	if (variable === 'user') {
-		return params.user['display-name']
+		return user['display-name']
 	}
 	if (variable === 'channel') {
-		return params.channel.slice(1)
+		return twitchApiModule.userData.display_name
 	}
 	if (variable === 'to') {
 		return args[0]
 	}
 	if (variable === 'args') {
-		return params.message
+		return message
 	}
 	if (variable.startsWith('args[')) {
 		const index = parseInt(variable.match(/\d+/g)![0])
@@ -80,6 +87,14 @@ async function getVariableValue(variable: string, params: CommandParams, modules
 	if (variable === 'random.7tv') {
 		return emotesModule.getRand7TvEmote()
 	}
+	if (variable === 'random.emote') {
+		const emote = await emotesModule.getRandTwitchEmote()
+		return emote?.name || ''
+	}
+	if (variable === 'random.clip') {
+		const clip = await twitchApiModule.getRandomClip()
+		return clip.url || ''
+	}
 	if (variable.startsWith('spotify.')) {
 		const spotifyVariable = variable.split('.')[1]
 		const spotifyInfo = await spotifyModule.currentlyPlaying()
@@ -100,23 +115,22 @@ async function getVariableValue(variable: string, params: CommandParams, modules
 		}
 	}
 	if (variable === 'uptime') {
-		const streamData = await twitchApiModule.getStreamData(params.user['user-id'])
+		const streamData = await twitchApiModule.getStreamData()
 		if (!streamData) return 'offline'
-		const startTime = new Date(streamData.started_at)
-		const currentTime = new Date()
-		const diff = currentTime.getTime() - startTime.getTime()
-		const hours = Math.floor(diff / 1000 / 60 / 60)
-		const minutes = Math.floor(diff / 1000 / 60) % 60
-		return `${hours} Stunden und ${minutes} Minuten`
+		const dur = Duration.fromMillis(new Date().getTime() - new Date(streamData.started_at).getTime())
+		return dur.toHuman({ unitDisplay: 'narrow' })
 	}
 	if (variable === 'viewers') {
-		const streamData = await twitchApiModule.getStreamData(params.user['user-id'])
+		const streamData = await twitchApiModule.getStreamData()
 		if (!streamData) return 'offline'
 		return streamData.viewer_count
 	}
 	if (variable === 'game') {
-		const streamData = await twitchApiModule.getStreamData(params.user['user-id'])
-		if (!streamData) return 'offline'
+		const streamData = await twitchApiModule.getChannelData()
 		return streamData.game_name
+	}
+	if (variable === 'title') {
+		const streamData = await twitchApiModule.getChannelData()
+		return streamData.title
 	}
 }

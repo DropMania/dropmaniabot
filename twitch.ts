@@ -27,7 +27,7 @@ const client = new tmi.Client({
 	channels: channels.map((channel) => channel.channel),
 })
 
-function getAccessToken() {
+export function getAccessToken() {
 	return access_token
 }
 
