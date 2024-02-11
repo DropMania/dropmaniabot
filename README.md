@@ -19,6 +19,56 @@
 
 ... and more!
 
+### Built-In Commands
+
+-   `enable [command]` - enable a command
+-   `disable [command]` - disable a command
+-   `addcom [comman] [replytext]` - add a custom command (with [variables](#Variables))
+-   `delcom [command]` - delete a custom command
+-   `editcom [command] [replytext]` - edit a custom command
+-   `setcooldown [command] [timeout in seconds]` - set a cooldown for a command
+
+-   `hello` - the bot says hello to you... lol
+
+-   `wecker [minutes]` - set a timer for the bot to remind you
+-   `birthday [mm.dd]` - the bot tells you how many days until your birthday
+-   `tr [text]` - translate text to german
+-   `clipit` - the bot clips the last 30 seconds of the stream
+
+-   `list` - lists all the people in the queue
+-   `join` - join the queue
+-   `leave` - leave the queue
+-   `clear` - clear the queue
+-   `lock` - lock the queue
+-   `unlock` - unlock the queue
+-   `pick` - pick the next person in the queue
+-   `randomPick` - pick a random person in the queue
+
+-   `rapuh` - the bot spits at a random chatter
+-   `kisscam` - the bot chooses two random chatters to kiss
+-   `witz` - the bot tells a joke
+-   `liebe` - the bot spreads love
+-   `ehre` - the bot gives you honor
+-   `chuck` - the bot tells a chuck norris joke
+-   `ratschlag` - the bot gives you advice
+-   `fakt` - the bot tells you a fact
+-   `pickupline` - the bot tells you a pickup line
+-   `uwu` - the bot uwuifies your text
+
+-   `quiz` - the bot starts a quiz
+-   `a` - answer the quiz
+-   `b` - answer the quiz
+-   `c` - answer the quiz
+-   `d` - answer the quiz
+
+-   `song` - the bot tells you the current song playing on the streamer's spotify
+-   `play` - the bot plays a song on the streamer's spotify
+-   `pause` - the bot pauses the song on the streamer's spotify
+-   `next` - the bot skips the song on the streamer's spotify
+
+-   `deactivatelobs` - deactivates the lobs
+-   `activatelobs` - activates the lobs
+
 ### Variables
 
 -   `{{from}}` - the user who triggered the command
