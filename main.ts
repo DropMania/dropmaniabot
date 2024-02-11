@@ -12,8 +12,6 @@ client.on('message', async (channel, user, message, self) => {
 	if (message[0] === '!') {
 		const [command, ...args] = message.slice(1).split(' ')
 		const commandHandlerModule = getModule(channel, CommandHandler)
-		const customCommands = await commandHandlerModule.getCustomCommands()
-		const customCommand = customCommands.find((c) => c.name === command.toLowerCase())
 		const cmdConfig = await commandHandlerModule.getCommandConfig(command.toLowerCase())
 		if (cmdConfig.disabled) return
 		const lastUsed = coolDownTracker[channel]?.[command] || 0
@@ -21,6 +19,8 @@ client.on('message', async (channel, user, message, self) => {
 		coolDownTracker[channel] = coolDownTracker[channel] || {}
 		coolDownTracker[channel][command] = Date.now()
 		commandParams.message = args.join(' ')
+		const customCommands = await commandHandlerModule.getCustomCommands()
+		const customCommand = customCommands.find((c) => c.name === command.toLowerCase())
 		if (customCommand) {
 			await commandHandlerModule.runCustomCommand(customCommand.reply_text, commandParams)
 			return

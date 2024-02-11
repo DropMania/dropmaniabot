@@ -13,7 +13,6 @@ const moduleClasses = await Promise.all(
 		}>
 	})
 ).catch(console.error)
-console.log(moduleClasses)
 
 if (!moduleClasses) throw new Error('Error loading modules')
 const moduleTmp = channels.reduce(

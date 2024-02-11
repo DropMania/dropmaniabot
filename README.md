@@ -6,7 +6,7 @@
 
 -   [x] custom commands
 -   [x] custom commands with variables
--   [ ] custom commands with scripting capabilities (maybe)
+-   [x] custom commands with scripting capabilities (javascript)
 -   [x] variety of cool built in commands B)
 -   [x] enable/disable commands
 -   [x] spotify integration
@@ -30,7 +30,7 @@
 -   `{{random}}` - a random number between 0 and 100
 -   `{{random[x]}}` - a random number between 0 and x
 -   `{{random[x,y]}}` - a random number between x and y
--   `{{random[text1,bla,was geht,...]}}` - a random element from the array
+-   `{{random[a,b,c,...]}}` - a random element from the array
 -   `{{random.chatter}}` - a random chatter in the channel
 -   `{{random.7tv}}` - a random 7tv emote
 -   `{{random.emote}}` - a random Twitch emote
@@ -43,3 +43,4 @@
 -   `{{viewers}}` - the current viewer count of the stream
 -   `{{game}}` - the current game being played
 -   `{{title}}` - the current title of the stream
+-   `{{eval JSCODE}}` - evaluate javascript code
