@@ -16,6 +16,7 @@ function evalInScope(js, contextAsScope = {}) {
 		clearImmediate: undefined,
 		Buffer: undefined,
 		import: undefined,
+		eval: undefined,
 	}
 	if (js.match(/import\(.*\)/)) {
 		return 'import() is not allowed'
