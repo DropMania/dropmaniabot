@@ -15,10 +15,10 @@ export default class Module {
 		this.client = twitch.default
 		this.moduleApi = await import(`../modules.js`)
 	}
-	getModule<T>(module: new (channelName: string) => T): T {
+	getModule<T extends Modules>(module: T): ModuleType<T> {
 		return this.moduleApi.getModule(this.channelName, module)
 	}
-	getGlobalModule<T>(module: new () => T): T {
+	getGlobalModule<T extends Modules>(module: T): ModuleType<T> {
 		return this.moduleApi.getGlobalModule(module)
 	}
 	onTwitchMessage({}: CommandParams) {}

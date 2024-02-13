@@ -24,7 +24,7 @@ export default class Emotes extends Module {
 		return this._7tvEmotes[Math.floor(Math.random() * this._7tvEmotes.length)].name
 	}
 	async getRandTwitchEmote() {
-		const twitchApiModule = this.getModule(TwitchApi)
+		const twitchApiModule = this.getModule('TwitchApi')
 		const emotes = await twitchApiModule.getEmotes()
 		return emotes[Math.floor(Math.random() * emotes.length)]
 	}

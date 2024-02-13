@@ -1,10 +1,6 @@
 import { ChildProcess, exec } from 'child_process'
 import terminate from 'terminate'
 import { Duration } from 'luxon'
-import Spotify from '../modules/Spotify.js'
-import Chatters from '../modules/Chatters.js'
-import Emotes from '../modules/Emotes.js'
-import TwitchApi from '../modules/TwitchApi.js'
 export async function parseCommand(text: string, params: CommandParams) {
 	const variables = text.match(/{{[{]?(.*?)[}]?}}/g)
 	if (!variables) return text
@@ -40,124 +36,147 @@ export async function parseCommand(text: string, params: CommandParams) {
 -   `{{viewers}}` - the current viewer count of the stream
 -   `{{game}}` - the current game being played
 -   `{{title}}` - the current title of the stream
+-   `{{followers}}` - the current follower count of the stream
+-   `{{subs}}` - the current sub count of the stream
 -   `{{eval JSCODE}}` - evaluate javascript code
  */
-function getVariableValue(variable: string, { getModule, user, message, channel, reply }: CommandParams) {
-	return new Promise<string>(async (resolve, reject) => {
-		const spotifyModule = getModule(Spotify)
-		const chattersModule = getModule(Chatters)
-		const emotesModule = getModule(Emotes)
-		const twitchApiModule = getModule(TwitchApi)
+async function getVariableValue(variable: string, { getModule, user, message }: CommandParams) {
+	const spotifyModule = getModule('Spotify')
+	const chattersModule = getModule('Chatters')
+	const emotesModule = getModule('Emotes')
+	const twitchApiModule = getModule('TwitchApi')
 
-		const args = message.split(/\s+/g)
-		if (variable === 'from') {
-			return resolve(user['display-name'])
+	const args = message.split(/\s+/g)
+	if (variable === 'from') {
+		return user['display-name']
+	}
+	if (variable === 'user') {
+		return user['display-name']
+	}
+	if (variable === 'channel') {
+		return twitchApiModule.userData.display_name
+	}
+	if (variable === 'to') {
+		return args[0]
+	}
+	if (variable === 'args') {
+		return message
+	}
+	if (variable.startsWith('args[')) {
+		const index = parseInt(variable.match(/\d+/g)![0])
+		return args[index] || ''
+	}
+	if (variable === 'random') {
+		return String(Math.floor(Math.random() * 100))
+	}
+	if (variable.match(/random\[\d+\]/)) {
+		const max = parseInt(variable.match(/\d+/g)![0])
+		return String(Math.floor(Math.random() * max))
+	}
+	if (variable.match(/random\[\d+,\d+\]/)) {
+		const [min, max] = variable.match(/\d+/g)!.map((n) => parseInt(n))
+		return String(Math.floor(Math.random() * (max - min) + min))
+	}
+	if (variable.startsWith('random[')) {
+		const options = variable.match(/\[(.*?)\]/)![1].split(',')
+		return options[Math.floor(Math.random() * options.length)] || ''
+	}
+	if (variable === 'random.chatter') {
+		const chatter = await chattersModule.getRandomChatter()
+		return chatter.displayName || ''
+	}
+	if (variable === 'random.7tv') {
+		return emotesModule.getRand7TvEmote()
+	}
+	if (variable === 'random.emote') {
+		const emote = await emotesModule.getRandTwitchEmote()
+		return emote?.name || ''
+	}
+	if (variable === 'random.clip') {
+		const clip = await twitchApiModule.getRandomClip()
+		return clip.url || ''
+	}
+	if (variable.startsWith('spotify.')) {
+		const spotifyVariable = variable.split('.')[1]
+		const spotifyInfo = await spotifyModule.currentlyPlaying()
+		if (!spotifyInfo.body.item) return ''
+		if (spotifyVariable === 'title') {
+			return spotifyInfo.body?.item?.name || ''
 		}
-		if (variable === 'user') {
-			return resolve(user['display-name'])
+		if (spotifyVariable === 'artist') {
+			/*  @ts-ignore */
+			return spotifyInfo.body?.item?.artists[0].name || ''
 		}
-		if (variable === 'channel') {
-			return resolve(twitchApiModule.userData.display_name)
+		if (spotifyVariable === 'album') {
+			/*  @ts-ignore */
+			return spotifyInfo.body?.item?.album?.name || ''
 		}
-		if (variable === 'to') {
-			return resolve(args[0])
+		if (spotifyVariable === 'url') {
+			return spotifyInfo.body?.item?.external_urls?.spotify || ''
 		}
-		if (variable === 'args') {
-			return resolve(message)
+	}
+	if (variable === 'uptime') {
+		const streamData = await twitchApiModule.getStreamData()
+		if (!streamData) return 'offline'
+		const dur = Duration.fromMillis(new Date().getTime() - new Date(streamData.started_at).getTime())
+		return dur.toHuman({ unitDisplay: 'narrow' })
+	}
+	if (variable === 'viewers') {
+		const streamData = await twitchApiModule.getStreamData()
+		if (!streamData) return 'offline'
+		return String(streamData.viewer_count)
+	}
+	if (variable === 'game') {
+		const streamData = await twitchApiModule.getChannelData()
+		return streamData.game_name
+	}
+	if (variable === 'title') {
+		const streamData = await twitchApiModule.getChannelData()
+		return streamData.title
+	}
+	if (variable === 'followers') {
+		const followers = await twitchApiModule.getFollowers()
+		return String(followers)
+	}
+	if (variable === 'subs') {
+		const subs = await twitchApiModule.getSubs()
+		if (!subs) return 'Nicht verfügbar'
+		return String(subs)
+	}
+	if (variable.startsWith('eval')) {
+		const context = { args, channel: twitchApiModule.userData.display_name }
+		return await runCode(variable, context)
+	}
+}
+
+function runCode(variable: string, context: Object): Promise<string> {
+	return new Promise((resolve) => {
+		let [evalStr, ...s] = variable.split(' ')
+		let extension = evalStr.replace('eval', '')
+		let flavour = 'node execute.js'
+		switch (extension) {
+			case 'py':
+				flavour = 'python execute.py'
+				break
 		}
-		if (variable.startsWith('args[')) {
-			const index = parseInt(variable.match(/\d+/g)![0])
-			return resolve(args[index] || '')
+		const code = s.join(' ')
+		const process_args = {
+			code,
+			scope: context,
 		}
-		if (variable === 'random') {
-			return resolve(String(Math.floor(Math.random() * 100)))
-		}
-		if (variable.match(/random\[\d+\]/)) {
-			const max = parseInt(variable.match(/\d+/g)![0])
-			return resolve(String(Math.floor(Math.random() * max)))
-		}
-		if (variable.match(/random\[\d+,\d+\]/)) {
-			const [min, max] = variable.match(/\d+/g)!.map((n) => parseInt(n))
-			return resolve(String(Math.floor(Math.random() * (max - min) + min)))
-		}
-		if (variable.startsWith('random[')) {
-			const options = variable.match(/\[(.*?)\]/)![1].split(',')
-			return resolve(options[Math.floor(Math.random() * options.length)] || '')
-		}
-		if (variable === 'random.chatter') {
-			const chatter = await chattersModule.getRandomChatter()
-			return resolve(chatter.displayName || '')
-		}
-		if (variable === 'random.7tv') {
-			return resolve(emotesModule.getRand7TvEmote())
-		}
-		if (variable === 'random.emote') {
-			const emote = await emotesModule.getRandTwitchEmote()
-			return resolve(emote?.name || '')
-		}
-		if (variable === 'random.clip') {
-			const clip = await twitchApiModule.getRandomClip()
-			return resolve(clip.url || '')
-		}
-		if (variable.startsWith('spotify.')) {
-			const spotifyVariable = variable.split('.')[1]
-			const spotifyInfo = await spotifyModule.currentlyPlaying()
-			if (!spotifyInfo.body.item) return ''
-			if (spotifyVariable === 'title') {
-				return resolve(spotifyInfo.body?.item?.name || '')
+		let process: ChildProcess | undefined
+		const timeout = setTimeout(() => {
+			if (process) terminate(process.pid)
+			resolve('Error: Timeout')
+		}, 1000)
+		const buffer = Buffer.from(JSON.stringify(process_args), 'utf-8').toString('base64')
+		process = exec(`cd ./evalcmd/ && ${flavour} ${buffer}`, (err, stdout, stderr) => {
+			clearTimeout(timeout)
+			if (err) {
+				resolve(`Error: Command konnte nicht ausgeführt werden.`)
+				return
 			}
-			if (spotifyVariable === 'artist') {
-				/*  @ts-ignore */
-				return resolve(spotifyInfo.body?.item?.artists[0].name || '')
-			}
-			if (spotifyVariable === 'album') {
-				/*  @ts-ignore */
-				return resolve(spotifyInfo.body?.item?.album?.name || '')
-			}
-			if (spotifyVariable === 'url') {
-				return resolve(spotifyInfo.body?.item?.external_urls?.spotify || '')
-			}
-		}
-		if (variable === 'uptime') {
-			const streamData = await twitchApiModule.getStreamData()
-			if (!streamData) return 'offline'
-			const dur = Duration.fromMillis(new Date().getTime() - new Date(streamData.started_at).getTime())
-			return resolve(dur.toHuman({ unitDisplay: 'narrow' }))
-		}
-		if (variable === 'viewers') {
-			const streamData = await twitchApiModule.getStreamData()
-			if (!streamData) return 'offline'
-			return resolve(String(streamData.viewer_count))
-		}
-		if (variable === 'game') {
-			const streamData = await twitchApiModule.getChannelData()
-			return resolve(streamData.game_name)
-		}
-		if (variable === 'title') {
-			const streamData = await twitchApiModule.getChannelData()
-			return resolve(streamData.title)
-		}
-		if (variable.startsWith('eval')) {
-			let [, ...s] = variable.split(' ')
-			const code = s.join(' ')
-			const process_args = {
-				code,
-				scope: { args, channel: twitchApiModule.userData.display_name },
-			}
-			let process: ChildProcess | undefined
-			const timeout = setTimeout(() => {
-				if (process) terminate(process.pid)
-				resolve('Error: Timeout')
-			}, 1000)
-			const buffer = Buffer.from(JSON.stringify(process_args), 'utf-8').toString('base64')
-			process = exec(`cd ./evalcmd/ && node execute.js ${buffer}`, (err, stdout, stderr) => {
-				clearTimeout(timeout)
-				if (err) {
-					resolve(`Error: Command konnte nicht ausgeführt werden.`)
-					return
-				}
-				resolve(stdout)
-			})
-		}
+			resolve(stdout)
+		})
 	})
 }

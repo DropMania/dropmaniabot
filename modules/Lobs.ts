@@ -1,6 +1,4 @@
 import Module from './_Module.js'
-import Chatters from './Chatters.js'
-import Emotes from './Emotes.js'
 import { db } from '../utils.js'
 
 export default class Lobs extends Module {
@@ -10,8 +8,8 @@ export default class Lobs extends Module {
 	}
 	async init() {
 		await super.init()
-		const emoteModule = this.getModule(Emotes)
-		const chatterModule = this.getModule(Chatters)
+		const emoteModule = this.getModule('Emotes')
+		const chatterModule = this.getModule('Chatters')
 		const query = db.selectFrom('lobs').select('text').where('channel', 'in', [this.channelName, 'ALL'])
 		setInterval(async () => {
 			if (!this.active) return

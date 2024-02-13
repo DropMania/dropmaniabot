@@ -16,6 +16,9 @@ export default class Queue extends Module {
 		}
 		return queue.join(', ')
 	}
+	async get() {
+		return await this.queue.get()
+	}
 	async add(user: string) {
 		this.queue.push(user)
 	}

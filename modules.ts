@@ -12,7 +12,7 @@ const moduleClasses = await Promise.all(
 			scope: string
 		}>
 	})
-).catch(console.error)
+)
 
 if (!moduleClasses) throw new Error('Error loading modules')
 const moduleTmp = channels.reduce(
@@ -33,8 +33,14 @@ const modules = moduleClasses.reduce((acc, module) => {
 	return acc
 }, moduleTmp) as {
 	[channel: string]: {
-		[module: string]: Module
+		[module: string]: ModuleType<Modules>
 	}
+}
+export function initModulesForChannel(channel: string) {
+	modules[channel] = {}
+	moduleClasses.forEach((module) => {
+		modules[channel][module.default.name] = new module.default(channel)
+	})
 }
 
 export default modules
@@ -58,12 +64,12 @@ export function callGlobalModules(method: string, ...args: any[]) {
 	}
 }
 
-export function getModule<T>(channel: string, moduleClass: new (channelName: string) => T) {
+export function getModule<T extends Modules>(channel: string, moduleName: T): ModuleType<T> {
 	if (channel[0] == '#') channel = channel.slice(1)
-	const module = modules[channel][moduleClass.name]
-	return module as T
+	const module = modules[channel]?.[moduleName]
+	return module as ModuleType<T>
 }
-export function getGlobalModule<T>(moduleClass: new (channelName: string) => T) {
-	const module = modules.__global[moduleClass.name]
-	return module as T
+export function getGlobalModule<T extends Modules>(moduleName: T): ModuleType<T> {
+	const module = modules.__global[moduleName]
+	return module as ModuleType<T>
 }

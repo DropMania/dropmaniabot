@@ -157,4 +157,54 @@ export namespace Twitch {
 		}>
 		template: string
 	}
+	export type ValidToken = {
+		client_id: string
+		login: string
+		scopes: Array<string>
+		user_id: string
+		expires_in: number
+	}
+	export type InvalidToken = {
+		status: number
+		message: string
+	}
+	export type RefreshToken = {
+		access_token: string
+		refresh_token: string
+		scope: Array<string>
+		token_type: string
+	}
+	export type Followers = {
+		total: number
+		data: Array<{
+			user_id: string
+			user_name: string
+			user_login: string
+			followed_at: string
+		}>
+		pagination: {
+			cursor: string
+		}
+	}
+	export type Subs = {
+		data: Array<{
+			broadcaster_id: string
+			broadcaster_login: string
+			broadcaster_name: string
+			gifter_id: string
+			gifter_login: string
+			gifter_name: string
+			is_gift: boolean
+			tier: string
+			plan_name: string
+			user_id: string
+			user_name: string
+			user_login: string
+		}>
+		pagination: {
+			cursor: string
+		}
+		total: number
+		points: number
+	}
 }

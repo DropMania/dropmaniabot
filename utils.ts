@@ -1,10 +1,11 @@
+import { config } from 'dotenv'
+config()
 import { Kysely, PostgresDialect } from 'kysely'
 import { DB } from 'kysely-codegen'
 import pg from 'pg'
 import RedisSync from './lib/redisSync.js'
-import dotenv from 'dotenv'
 import translate from 'translate'
-dotenv.config()
+
 /* @ts-ignore */
 translate.engine = 'google'
 /* @ts-ignore */

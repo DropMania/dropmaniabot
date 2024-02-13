@@ -1,13 +1,22 @@
 {
 	"compilerOptions": {
-		"module": "es2022",
+		"module": "ESNext",
 		"esModuleInterop": true,
 		"target": "ES2022",
-		"moduleResolution": "node",
+		"moduleResolution": "Bundler",
 		"sourceMap": true,
 		"outDir": "dist",
-		"allowJs": true
+		"allowJs": true,
+		"paths": {
+			"*": ["./types/*.d.ts"]
+		}
 	},
-
-	"lib": ["es2015"]
+	"ts-node": {
+		"esm": true,
+		"experimentalSpecifierResolution": "node",
+		"transpileOnly": true
+	},
+	"lib": ["es2015"],
+	"include": ["./**/*.ts"],
+	"exclude": ["node_modules"]
 }

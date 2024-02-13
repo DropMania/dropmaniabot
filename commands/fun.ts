@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { tr } from '../utils.js'
 import UwUifier from 'uwuifier'
-import Chatters from '../modules/Chatters.js'
 const uwuifier = new UwUifier()
 
 export async function witz({ reply }: CommandParams) {
@@ -62,13 +61,13 @@ export async function uwu({ reply, message }: CommandParams) {
 }
 
 export async function rapuh({ reply, getModule }: CommandParams) {
-	const chatterModule = getModule(Chatters)
+	const chatterModule = getModule('Chatters')
 	const rndChatter = await chatterModule.getRandomChatter()
 	reply(`${rndChatter.displayName} Rapuh!`)
 }
 
 export async function kisscam({ reply, getModule }: CommandParams) {
-	const chatterModule = getModule(Chatters)
+	const chatterModule = getModule('Chatters')
 	const chatterStore = await chatterModule.getChatters()
 	let chatters = Object.values(chatterStore).sort(() => Math.random() - 0.5)
 	if (chatters.length === 0) return

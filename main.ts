@@ -3,6 +3,8 @@ import client from './twitch.js'
 import commands from './commands.js'
 import { getModule, getGlobalModule, callGlobalModules, callChannelModules } from './modules.js'
 import CommandHandler from './modules/CommandHandler.js'
+import './api/setup.js'
+
 const coolDownTracker: CooldownTracker = {}
 client.on('message', async (channel, user, message, self) => {
 	if (self) return
@@ -11,7 +13,7 @@ client.on('message', async (channel, user, message, self) => {
 	callChannelModules('onTwitchMessage', channel, commandParams)
 	if (message[0] === '!') {
 		const [command, ...args] = message.slice(1).split(' ')
-		const commandHandlerModule = getModule(channel, CommandHandler)
+		const commandHandlerModule = getModule(channel, 'CommandHandler')
 		const cmdConfig = await commandHandlerModule.getCommandConfig(command.toLowerCase())
 		if (cmdConfig.disabled) return
 		const lastUsed = coolDownTracker[channel]?.[command] || 0
@@ -64,8 +66,8 @@ function getCommandParams(channel: string, user: tmi.ChatUserstate, message: str
 	const reply = async (message: string) => {
 		await client.say(channel, message)
 	}
-	const getChannelModule = <T>(moduleClass: new (channelName: string) => T) => {
-		const module = getModule(channel, moduleClass)
+	const getChannelModule = <T extends Modules>(moduleName: T): ModuleType<T> => {
+		const module = getModule(channel, moduleName)
 		return module
 	}
 	const commandParams: CommandParams = {

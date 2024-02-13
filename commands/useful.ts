@@ -1,4 +1,3 @@
-import TwitchApi from '../modules/TwitchApi.js'
 import { sleep, tr as translate } from '../utils.js'
 
 export async function birthday({ reply, message, user }: CommandParams) {
@@ -34,7 +33,7 @@ export async function tr({ reply, message }: CommandParams) {
 }
 
 export async function clipit({ reply, getModule }: CommandParams) {
-	const twitchApiModule = getModule(TwitchApi)
+	const twitchApiModule = getModule('TwitchApi')
 	const clip = await twitchApiModule.createClip()
 	if (!clip) return reply('Clip konnte nicht erstellt werden!')
 	const interval = setInterval(async () => {

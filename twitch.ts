@@ -1,7 +1,7 @@
 import tmi from 'tmi.js'
 import axios from 'axios'
 import channels from './channels.js'
-import { callAllModules } from './modules.js'
+import { callAllModules, initModulesForChannel } from './modules.js'
 
 let access_token = ''
 const client = new tmi.Client({
@@ -35,5 +35,12 @@ client.connect().catch(console.error)
 client.on('connected', () => {
 	callAllModules('init')
 })
+
+export function joinChannel(channel: (typeof channels)[number]) {
+	client.join(channel.channel)
+	channels.push(channel)
+	initModulesForChannel(channel.channel)
+	callAllModules('init', channel.channel)
+}
 
 export default client

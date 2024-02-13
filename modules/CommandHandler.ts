@@ -71,6 +71,15 @@ export default class CommandHandler extends Module {
 	async getCustomCommands() {
 		return await db.selectFrom('custom_commands').selectAll().where('channel', '=', this.channelName).execute()
 	}
+	async getAllCommands() {
+		const customCommands = await this.getCustomCommands()
+		const builtInCommands = Object.keys(commands).map((command) => ({
+			name: command,
+			reply_text: '',
+			channel: 'BUILD_IN',
+		}))
+		return [...customCommands, ...builtInCommands]
+	}
 
 	async runCustomCommand(reply_text: string, params: CommandParams) {
 		const replyText = await parseCommand(reply_text, params)
