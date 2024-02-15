@@ -43,7 +43,7 @@ authRouter.get('/twitch/callback', async (req, res) => {
 	const user = await getUser(access_token)
 	if (!user) return res.status(400).json({ error: 'Invalid token' })
 	const isNew = await insertChannel(user.login, refresh_token)
-	if (!isNew) {
+	if (isNew) {
 		joinChannel({
 			channel: user.login,
 			twitch_refresh: refresh_token,
